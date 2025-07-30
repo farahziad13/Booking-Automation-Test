@@ -21,21 +21,31 @@ public class HomePage {
         driver.manage().window().maximize();
     }
 
-    public void setDestination(String location) throws InterruptedException {
+    public void setDestination(String location) {
         try {
-            WebElement input = driver.findElement(By.xpath("//input[@id=':rh:']"));
+            WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id=':rh:']")));
             input.sendKeys(location);
         } catch (ElementClickInterceptedException e) {
             PopupHandler.dismissPopup(driver);
-            driver.findElement(By.xpath("//input[@id=':rh:']")).sendKeys(location);
+            WebElement input = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//input[@id=':rh:']")));
+            input.sendKeys(location);
         }
 
-        Thread.sleep(2000);
+        By suggestionLocator = By.cssSelector("li[id='autocomplete-result-0'] div[role='button']");
         try {
-            wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("li[id='autocomplete-result-0'] div[role='button']"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(suggestionLocator)).click();
         } catch (ElementClickInterceptedException e) {
             PopupHandler.dismissPopup(driver);
-            wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("li[id='autocomplete-result-0'] div[role='button']"))).click();
+            wait.until(ExpectedConditions.elementToBeClickable(suggestionLocator)).click();
+        }
+        try {
+            // Wait until the suggestion is both clickable and contains "Alexandria"
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(suggestionLocator, "Alexandria"));
+            wait.until(ExpectedConditions.elementToBeClickable(suggestionLocator)).click();
+        } catch (ElementClickInterceptedException e) {
+            PopupHandler.dismissPopup(driver);
+            wait.until(ExpectedConditions.textToBePresentInElementLocated(suggestionLocator, "Alexandria"));
+            wait.until(ExpectedConditions.elementToBeClickable(suggestionLocator)).click();
         }
     }
 
@@ -79,21 +89,22 @@ public class HomePage {
         JavascriptExecutor js = (JavascriptExecutor) driver;
         for (int i = 0; i < 5; i++) {
             js.executeScript("window.scrollBy(0, 1000)");
+
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {}
+                wait.until(driver1 -> ((JavascriptExecutor) driver1)
+                        .executeScript("return document.readyState").equals("complete"));
+            } catch (Exception ignored) {}
         }
     }
 
     public void clickHotel(String hotelName) {
+        By hotelLocator = By.xpath("//div[@data-testid='title' and contains(text(), '" + hotelName + "')]");
         try {
-            WebElement hotel = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//div[@data-testid='title' and contains(text(), '" + hotelName + "')]")));
+            WebElement hotel = wait.until(ExpectedConditions.elementToBeClickable(hotelLocator));
             hotel.click();
         } catch (ElementClickInterceptedException e) {
             PopupHandler.dismissPopup(driver);
-            WebElement hotel = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.xpath("//div[@data-testid='title' and contains(text(), '" + hotelName + "')]")));
+            WebElement hotel = wait.until(ExpectedConditions.elementToBeClickable(hotelLocator));
             hotel.click();
         }
     }

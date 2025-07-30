@@ -19,29 +19,27 @@ public class HotelPage {
         ArrayList<String> tabs = new ArrayList<>(driver.getWindowHandles());
         driver.switchTo().window(tabs.get(1));
     }
-    public void configureRoomSelection() throws InterruptedException {
-        try {
-            Thread.sleep(5000);
-            ((JavascriptExecutor) driver).executeScript("window.scrollBy(0, 1000)");
-            Thread.sleep(2000);
 
-            driver.findElement(By.cssSelector("input[value='1'][name='bedPreference_78883120']")).click();
+    public void configureRoomSelection() {
+        wait.until(webDriver -> {
+            ((JavascriptExecutor) webDriver).executeScript("window.scrollBy(0, 1000)");
+            return true;
+        });
 
-            Thread.sleep(2000);
+        By bedPreferenceLocator = By.cssSelector("input[value='1'][name='bedPreference_78883120']");
+        WebElement bedPreference = wait.until(ExpectedConditions.elementToBeClickable(bedPreferenceLocator));
+        bedPreference.click();
 
-            WebElement selectField = driver.findElement(By.cssSelector("#hprt_nos_select_78883120_386871369_0_33_0_131741"));
-            selectField.click();
-            selectField.sendKeys("1");
-            selectField.sendKeys(Keys.ENTER);
+        By quantityDropdown = By.cssSelector("#hprt_nos_select_78883120_386871369_0_33_0_131741");
+        WebElement selectField = wait.until(ExpectedConditions.elementToBeClickable(quantityDropdown));
+        selectField.click();
+        selectField.sendKeys("1");
+        selectField.sendKeys(Keys.ENTER);
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Thread.sleep(2000);
-
-        driver.findElement(By.xpath("//button[contains(@class,'hp_rt_input px--fw-cta js-reservation-button')]")).click();
+        By reserveButton = By.xpath("//button[contains(@class,'hp_rt_input px--fw-cta js-reservation-button')]");
+        WebElement reserve = wait.until(ExpectedConditions.elementToBeClickable(reserveButton));
+        reserve.click();
     }
-
 
     public String getHotelName() {
         By locator = By.xpath("//h1[@class='e7addce19e']");
